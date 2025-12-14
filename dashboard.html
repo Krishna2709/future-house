@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Drone Control Dashboard</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -19,6 +19,9 @@
             margin: 0;
             padding: 0;
             overflow: hidden;
+            font-weight: 400;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
         .dashboard {
@@ -31,8 +34,8 @@
 
         /* Left Sidebar - Map Panel */
         .map-panel {
-            width: 320px;
-            min-width: 320px;
+            width: 360px;
+            min-width: 360px;
             background: transparent;
             position: relative;
             display: flex;
@@ -47,16 +50,17 @@
 
         .close-btn {
             position: absolute;
-            top: 12px;
-            right: 12px;
+            top: 16px;
+            right: 16px;
             width: 24px;
             height: 24px;
             background: transparent;
             border: none;
             cursor: pointer;
             z-index: 10;
-            font-size: 18px;
-            color: #666;
+            font-size: 20px;
+            color: #555;
+            font-weight: 300;
         }
 
         .close-btn:hover {
@@ -72,52 +76,24 @@
             left: 0;
         }
 
-        .waypoint {
-            fill: none;
-            stroke: #333;
-            stroke-width: 1.5;
-        }
-
-        .waypoint-dot {
-            fill: #fff;
-            stroke: #333;
-            stroke-width: 1.5;
-        }
-
         .waypoint-label {
-            font-size: 10px;
+            font-size: 12px;
             font-weight: 500;
             fill: #333;
-        }
-
-        .route-line {
-            stroke: #333;
-            stroke-width: 1.5;
-            stroke-dasharray: 4, 4;
-            fill: none;
-        }
-
-        .drone-icon {
-            fill: #333;
-        }
-
-        .drone-circle {
-            fill: none;
-            stroke: #333;
-            stroke-width: 1.5;
+            letter-spacing: 0.3px;
         }
 
         /* Weather Info */
         .weather-info {
-            padding: 20px 24px;
+            padding: 24px 28px;
             background: transparent;
-            border-top: 1px solid rgba(0,0,0,0.08);
+            border-top: 1px solid rgba(0,0,0,0.06);
         }
 
         .weather-item {
             display: flex;
             flex-direction: column;
-            margin-bottom: 16px;
+            margin-bottom: 20px;
         }
 
         .weather-item:last-child {
@@ -125,17 +101,19 @@
         }
 
         .weather-label {
-            font-size: 9px;
+            font-size: 10px;
             color: #888;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.8px;
             text-transform: uppercase;
-            margin-bottom: 4px;
+            margin-bottom: 6px;
+            font-weight: 500;
         }
 
         .weather-value {
-            font-size: 16px;
+            font-size: 18px;
             font-weight: 600;
-            color: #333;
+            color: #222;
+            letter-spacing: -0.2px;
         }
 
         /* Main Content Area */
@@ -176,17 +154,6 @@
             position: relative;
         }
 
-        /* City skyline effect */
-        .city-skyline {
-            position: absolute;
-            bottom: 30%;
-            left: 0;
-            right: 0;
-            height: 40%;
-            background:
-                linear-gradient(180deg, transparent 0%, rgba(139, 154, 168, 0.3) 100%);
-        }
-
         /* Video Overlays */
         .video-overlay-top {
             position: absolute;
@@ -195,31 +162,42 @@
             right: 0;
             display: flex;
             justify-content: space-between;
-            padding: 16px 24px;
-            background: linear-gradient(180deg, rgba(0,0,0,0.3) 0%, transparent 100%);
+            padding: 20px 28px;
+            background: linear-gradient(180deg, rgba(0,0,0,0.35) 0%, transparent 100%);
         }
 
         .overlay-item {
             color: #fff;
-            text-align: center;
+        }
+
+        .overlay-item.left {
+            text-align: left;
         }
 
         .overlay-item.center {
             position: absolute;
             left: 50%;
             transform: translateX(-50%);
+            text-align: center;
+        }
+
+        .overlay-item.right {
+            text-align: right;
         }
 
         .overlay-label {
             font-size: 10px;
-            letter-spacing: 0.5px;
-            opacity: 0.8;
+            letter-spacing: 1px;
+            opacity: 0.85;
             text-transform: uppercase;
+            font-weight: 500;
+            margin-bottom: 4px;
         }
 
         .overlay-value {
-            font-size: 18px;
+            font-size: 20px;
             font-weight: 500;
+            letter-spacing: -0.3px;
         }
 
         .video-overlay-bottom {
@@ -230,8 +208,8 @@
             display: flex;
             justify-content: space-between;
             align-items: flex-end;
-            padding: 24px;
-            background: linear-gradient(0deg, rgba(0,0,0,0.4) 0%, transparent 100%);
+            padding: 28px;
+            background: linear-gradient(0deg, rgba(0,0,0,0.45) 0%, transparent 100%);
         }
 
         /* Signal and Battery Indicators */
@@ -248,34 +226,34 @@
         .indicator-label {
             font-size: 10px;
             color: #fff;
-            opacity: 0.8;
-            letter-spacing: 0.5px;
+            opacity: 0.85;
+            letter-spacing: 1px;
             text-transform: uppercase;
-            margin-bottom: 6px;
+            margin-bottom: 8px;
+            font-weight: 500;
         }
 
         .indicator-bars {
             display: flex;
-            gap: 3px;
-            height: 14px;
+            gap: 2px;
+            height: 16px;
         }
 
         .indicator-bar {
-            width: 10px;
+            width: 12px;
             height: 100%;
-            background: #fff;
-            transform: skewX(-15deg);
-            opacity: 0.9;
+            background: rgba(255, 255, 255, 0.95);
+            transform: skewX(-20deg);
         }
 
         .indicator-bar.inactive {
-            opacity: 0.3;
+            background: rgba(255, 255, 255, 0.25);
         }
 
         /* Speed Display */
         .speed-display {
             position: absolute;
-            bottom: 20px;
+            bottom: 24px;
             left: 50%;
             transform: translateX(-50%);
             text-align: center;
@@ -283,15 +261,29 @@
         }
 
         .speed-value {
-            font-size: 72px;
+            font-size: 88px;
             font-weight: 300;
             line-height: 1;
+            letter-spacing: -4px;
         }
 
         .speed-unit {
-            font-size: 14px;
-            opacity: 0.8;
-            letter-spacing: 2px;
+            font-size: 16px;
+            opacity: 0.85;
+            letter-spacing: 3px;
+            font-weight: 500;
+            margin-top: 4px;
+        }
+
+        /* HSP4 Video Marker */
+        .video-marker {
+            position: absolute;
+            bottom: 70px;
+            right: 32px;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 12px;
+            letter-spacing: 0.8px;
+            font-weight: 500;
         }
 
         /* Flight Info Section */
@@ -303,7 +295,7 @@
         }
 
         .info-card {
-            padding: 24px 28px;
+            padding: 24px 32px;
             border-right: 1px solid #f0f0f0;
         }
 
@@ -315,60 +307,62 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 16px;
+            margin-bottom: 20px;
         }
 
         .drone-name {
-            font-size: 13px;
+            font-size: 15px;
             font-weight: 600;
-            color: #333;
+            color: #222;
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
+            letter-spacing: -0.2px;
         }
 
         .dropdown-arrow {
-            font-size: 8px;
+            font-size: 10px;
             color: #666;
         }
 
         .status-badge {
             background: #F26B4E;
             color: #fff;
-            font-size: 9px;
+            font-size: 10px;
             font-weight: 600;
-            padding: 3px 8px;
-            border-radius: 3px;
-            letter-spacing: 0.5px;
+            padding: 5px 12px;
+            border-radius: 4px;
+            letter-spacing: 0.8px;
         }
 
         .section-title {
-            font-size: 10px;
-            color: #999;
-            letter-spacing: 0.5px;
+            font-size: 11px;
+            color: #888;
+            letter-spacing: 0.8px;
             text-transform: uppercase;
-            margin-bottom: 12px;
+            margin-bottom: 14px;
+            font-weight: 500;
         }
 
         /* Route Display */
         .route-display {
             display: flex;
             align-items: center;
-            gap: 12px;
-            margin-bottom: 16px;
+            gap: 16px;
+            margin-bottom: 20px;
         }
 
         .route-point {
-            font-size: 18px;
+            font-size: 20px;
             font-weight: 600;
-            color: #333;
+            color: #222;
+            letter-spacing: -0.3px;
         }
 
         .route-line-container {
             flex: 1;
-            height: 3px;
+            height: 2px;
             background: #e0e0e0;
-            border-radius: 2px;
             position: relative;
         }
 
@@ -378,29 +372,26 @@
             top: 0;
             height: 100%;
             background: #333;
-            border-radius: 2px;
             width: 72%;
         }
 
-        .route-progress::after {
-            content: '';
+        .route-progress .route-arrow {
             position: absolute;
-            right: -5px;
+            right: -7px;
             top: 50%;
             transform: translateY(-50%);
             width: 0;
             height: 0;
-            border-left: 5px solid transparent;
-            border-right: 5px solid transparent;
-            border-bottom: 8px solid #333;
-            transform: translateY(-50%) rotate(90deg);
+            border-top: 4px solid transparent;
+            border-bottom: 4px solid transparent;
+            border-left: 7px solid #333;
         }
 
         /* Info Grid */
         .info-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 12px;
+            gap: 16px;
         }
 
         .info-item {
@@ -409,17 +400,26 @@
         }
 
         .info-label {
-            font-size: 9px;
-            color: #999;
-            letter-spacing: 0.5px;
+            font-size: 10px;
+            color: #888;
+            letter-spacing: 0.8px;
             text-transform: uppercase;
-            margin-bottom: 2px;
+            margin-bottom: 4px;
+            font-weight: 500;
         }
 
         .info-value {
-            font-size: 16px;
+            font-size: 17px;
+            font-weight: 600;
+            color: #222;
+            letter-spacing: -0.2px;
+        }
+
+        .info-value .unit {
+            font-size: 12px;
             font-weight: 500;
-            color: #333;
+            color: #555;
+            letter-spacing: 0.5px;
         }
 
         /* Compass */
@@ -428,7 +428,6 @@
             align-items: flex-start;
             justify-content: space-between;
             height: 100%;
-            padding-top: 8px;
         }
 
         .compass-info {
@@ -436,16 +435,41 @@
             flex-direction: column;
         }
 
+        .direction-heading {
+            font-size: 13px;
+            color: #888;
+            margin-top: 12px;
+        }
+
+        .direction-main {
+            font-size: 42px;
+            font-weight: 300;
+            color: #222;
+            margin-top: 6px;
+            line-height: 1;
+            letter-spacing: -1px;
+        }
+
         .compass-wrapper {
             display: flex;
             flex-direction: column;
             align-items: center;
             position: relative;
+            padding: 8px 0;
+        }
+
+        .compass-outer {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .compass {
-            width: 100px;
-            height: 100px;
+            width: 90px;
+            height: 90px;
             position: relative;
         }
 
@@ -455,36 +479,36 @@
             border: 1.5px solid #ddd;
             border-radius: 50%;
             position: relative;
-            background: #fff;
+            background: #fafafa;
         }
 
         .compass-direction {
             position: absolute;
-            font-size: 9px;
-            color: #aaa;
+            font-size: 10px;
+            color: #999;
             font-weight: 500;
         }
 
         .compass-direction.north {
-            top: 10px;
+            top: 12px;
             left: 50%;
             transform: translateX(-50%);
         }
 
         .compass-direction.south {
-            bottom: 10px;
+            bottom: 12px;
             left: 50%;
             transform: translateX(-50%);
         }
 
         .compass-direction.east {
-            right: 10px;
+            right: 12px;
             top: 50%;
             transform: translateY(-50%);
         }
 
         .compass-direction.west {
-            left: 10px;
+            left: 12px;
             top: 50%;
             transform: translateY(-50%);
         }
@@ -503,10 +527,10 @@
             position: absolute;
             width: 0;
             height: 0;
-            border-left: 7px solid transparent;
-            border-right: 7px solid transparent;
-            border-bottom: 30px solid #333;
-            transform: translateX(-7px) translateY(-30px);
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-bottom: 28px solid #333;
+            transform: translateX(-8px) translateY(-28px);
         }
 
         .compass-needle::after {
@@ -514,10 +538,10 @@
             position: absolute;
             width: 0;
             height: 0;
-            border-left: 5px solid transparent;
-            border-right: 5px solid transparent;
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
             border-top: 18px solid #ddd;
-            transform: translateX(-5px);
+            transform: translateX(-6px);
         }
 
         .compass-center {
@@ -525,58 +549,51 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 6px;
-            height: 6px;
-            background: #333;
+            width: 8px;
+            height: 8px;
+            background: #fff;
+            border: 2px solid #333;
             border-radius: 50%;
         }
 
-        .compass-ticks {
+        /* Compass degree markers outside the circle */
+        .compass-degree-marker {
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-        }
-
-        .compass-tick {
-            position: absolute;
-            width: 1px;
-            height: 6px;
-            background: #ccc;
-        }
-
-        .direction-value {
-            font-size: 12px;
+            font-size: 11px;
             color: #999;
-            margin-top: 8px;
+            font-weight: 400;
         }
 
-        .direction-main {
-            font-size: 36px;
-            font-weight: 300;
-            color: #333;
-            margin-top: 4px;
-            line-height: 1;
+        .compass-degree-marker.top {
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .compass-degree-marker.right {
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .compass-degree-marker.bottom {
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .compass-degree-marker.left {
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
         }
 
         .direction-degrees {
-            font-size: 28px;
+            font-size: 32px;
             font-weight: 300;
-            color: #333;
+            color: #222;
             line-height: 1;
-        }
-
-        .compass-degrees {
-            display: flex;
-            justify-content: space-between;
-            width: 130px;
-            margin-top: 4px;
-        }
-
-        .compass-degree {
-            font-size: 9px;
-            color: #aaa;
+            letter-spacing: -1px;
         }
 
         /* Control Buttons */
@@ -589,13 +606,14 @@
         }
 
         .control-btn {
-            padding: 20px;
+            padding: 22px;
             border: none;
-            font-size: 15px;
+            font-size: 16px;
             font-weight: 500;
             cursor: pointer;
             transition: all 0.2s;
             font-family: inherit;
+            letter-spacing: 0.2px;
         }
 
         .control-btn.autopilot {
@@ -617,20 +635,6 @@
 
         .control-btn:hover {
             opacity: 0.9;
-        }
-
-        /* HSP4 label with bullet point */
-        .waypoint-label-wrapper {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .waypoint-bullet {
-            width: 4px;
-            height: 4px;
-            background: #444;
-            border-radius: 50%;
         }
     </style>
 </head>
@@ -732,22 +736,22 @@
 
                 <!-- Top Overlay -->
                 <div class="video-overlay-top">
-                    <div class="overlay-item">
+                    <div class="overlay-item left">
                         <div class="overlay-label">Temperature</div>
                         <div class="overlay-value">22°C</div>
                     </div>
                     <div class="overlay-item center">
                         <div class="overlay-label">Flight Altitude</div>
-                        <div class="overlay-value">300<sub style="font-size: 10px; vertical-align: baseline;">M</sub></div>
+                        <div class="overlay-value">300<span style="font-size: 12px; font-weight: 400;">M</span></div>
                     </div>
-                    <div class="overlay-item">
+                    <div class="overlay-item right">
                         <div class="overlay-label">Humidity</div>
                         <div class="overlay-value">37%</div>
                     </div>
                 </div>
 
                 <!-- HSP4 marker in video -->
-                <div style="position: absolute; bottom: 80px; right: 30px; color: rgba(255,255,255,0.7); font-size: 12px; letter-spacing: 0.5px;">HSP4</div>
+                <div class="video-marker">HSP4</div>
 
                 <!-- Bottom Overlay -->
                 <div class="video-overlay-bottom">
@@ -806,7 +810,9 @@
                     <div class="route-display">
                         <span class="route-point">WH2</span>
                         <div class="route-line-container">
-                            <div class="route-progress"></div>
+                            <div class="route-progress">
+                                <div class="route-arrow"></div>
+                            </div>
                         </div>
                         <span class="route-point">HSP4</span>
                     </div>
@@ -858,15 +864,15 @@
                     <div class="compass-container">
                         <div class="compass-info">
                             <div class="section-title">Direction</div>
-                            <div class="direction-value">90</div>
+                            <div class="direction-heading">90</div>
                             <div class="direction-main">NE</div>
                         </div>
                         <div class="compass-wrapper">
-                            <div style="display: flex; justify-content: center; width: 100%; margin-bottom: 4px;">
-                                <span class="compass-degree">0</span>
-                            </div>
-                            <div style="display: flex; align-items: center; gap: 8px;">
-                                <span class="compass-degree">0</span>
+                            <div class="compass-outer">
+                                <span class="compass-degree-marker top">0</span>
+                                <span class="compass-degree-marker right">180</span>
+                                <span class="compass-degree-marker bottom">270</span>
+                                <span class="compass-degree-marker left">0</span>
                                 <div class="compass">
                                     <div class="compass-ring">
                                         <span class="compass-direction north">N</span>
@@ -877,13 +883,9 @@
                                         <div class="compass-center"></div>
                                     </div>
                                 </div>
-                                <span class="compass-degree">180</span>
-                            </div>
-                            <div style="display: flex; justify-content: center; width: 100%; margin-top: 4px;">
-                                <span class="compass-degree">270</span>
                             </div>
                         </div>
-                        <div style="display: flex; flex-direction: column; justify-content: flex-end; align-items: flex-end;">
+                        <div style="display: flex; flex-direction: column; align-items: flex-end;">
                             <span class="direction-degrees">53°</span>
                         </div>
                     </div>
