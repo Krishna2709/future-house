@@ -427,54 +427,65 @@
         .compass-container {
             display: flex;
             align-items: flex-start;
-            gap: 20px;
+            justify-content: space-between;
+            height: 100%;
+            padding-top: 8px;
         }
 
         .compass-info {
-            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .compass-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
         }
 
         .compass {
-            width: 100px;
-            height: 100px;
+            width: 90px;
+            height: 90px;
             position: relative;
         }
 
         .compass-ring {
             width: 100%;
             height: 100%;
-            border: 2px solid #e0e0e0;
+            border: 1.5px solid #ddd;
             border-radius: 50%;
             position: relative;
+            background: #fff;
         }
 
         .compass-direction {
             position: absolute;
             font-size: 9px;
-            color: #999;
+            color: #aaa;
             font-weight: 500;
         }
 
         .compass-direction.north {
-            top: 8px;
+            top: 10px;
             left: 50%;
             transform: translateX(-50%);
         }
 
         .compass-direction.south {
-            bottom: 8px;
+            bottom: 10px;
             left: 50%;
             transform: translateX(-50%);
         }
 
         .compass-direction.east {
-            right: 8px;
+            right: 10px;
             top: 50%;
             transform: translateY(-50%);
         }
 
         .compass-direction.west {
-            left: 8px;
+            left: 10px;
             top: 50%;
             transform: translateY(-50%);
         }
@@ -493,10 +504,10 @@
             position: absolute;
             width: 0;
             height: 0;
-            border-left: 8px solid transparent;
-            border-right: 8px solid transparent;
-            border-bottom: 35px solid #333;
-            transform: translateX(-8px) translateY(-35px);
+            border-left: 7px solid transparent;
+            border-right: 7px solid transparent;
+            border-bottom: 30px solid #333;
+            transform: translateX(-7px) translateY(-30px);
         }
 
         .compass-needle::after {
@@ -504,10 +515,10 @@
             position: absolute;
             width: 0;
             height: 0;
-            border-left: 6px solid transparent;
-            border-right: 6px solid transparent;
-            border-top: 20px solid #ccc;
-            transform: translateX(-6px);
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-top: 18px solid #ddd;
+            transform: translateX(-5px);
         }
 
         .compass-center {
@@ -515,8 +526,8 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 8px;
-            height: 8px;
+            width: 6px;
+            height: 6px;
             background: #333;
             border-radius: 50%;
         }
@@ -537,23 +548,36 @@
         }
 
         .direction-value {
-            font-size: 11px;
+            font-size: 10px;
             color: #999;
             margin-top: 8px;
         }
 
         .direction-main {
-            font-size: 32px;
+            font-size: 28px;
             font-weight: 300;
             color: #333;
-            margin-top: 4px;
+            margin-top: 2px;
+            line-height: 1;
         }
 
         .direction-degrees {
-            font-size: 24px;
+            font-size: 22px;
             font-weight: 300;
             color: #333;
-            text-align: right;
+            line-height: 1;
+        }
+
+        .compass-degrees {
+            display: flex;
+            justify-content: space-between;
+            width: 130px;
+            margin-top: 4px;
+        }
+
+        .compass-degree {
+            font-size: 9px;
+            color: #aaa;
         }
 
         /* Control Buttons */
@@ -596,35 +620,18 @@
             opacity: 0.9;
         }
 
-        /* Degree markers on compass edges */
-        .degree-marker {
-            position: absolute;
-            font-size: 9px;
-            color: #999;
+        /* HSP4 label with bullet point */
+        .waypoint-label-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 4px;
         }
 
-        .degree-marker.top {
-            top: -18px;
-            left: 50%;
-            transform: translateX(-50%);
-        }
-
-        .degree-marker.right {
-            right: -20px;
-            top: 50%;
-            transform: translateY(-50%);
-        }
-
-        .degree-marker.bottom {
-            bottom: -18px;
-            left: 50%;
-            transform: translateX(-50%);
-        }
-
-        .degree-marker.left {
-            left: -20px;
-            top: 50%;
-            transform: translateY(-50%);
+        .waypoint-bullet {
+            width: 4px;
+            height: 4px;
+            background: #444;
+            border-radius: 50%;
         }
     </style>
 </head>
@@ -635,46 +642,68 @@
             <div class="map-container">
                 <button class="close-btn">×</button>
                 <svg class="map-svg" viewBox="0 0 280 400" preserveAspectRatio="xMidYMid slice">
-                    <!-- Map background pattern - streets -->
                     <defs>
-                        <pattern id="streets" patternUnits="userSpaceOnUse" width="40" height="40">
-                            <path d="M0 20 L40 20 M20 0 L20 40" stroke="#ddd" stroke-width="0.5" fill="none"/>
-                        </pattern>
+                        <!-- Water pattern -->
+                        <linearGradient id="waterGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" style="stop-color:#e8eff2;stop-opacity:0.6" />
+                            <stop offset="100%" style="stop-color:#d0e0e8;stop-opacity:0.8" />
+                        </linearGradient>
                     </defs>
-                    <rect width="100%" height="100%" fill="#f0ece6"/>
 
-                    <!-- Simulated map roads -->
-                    <path d="M0 80 Q70 90 140 70 T280 90" stroke="#e0dcd6" stroke-width="8" fill="none"/>
-                    <path d="M0 150 Q100 140 180 160 T280 140" stroke="#e0dcd6" stroke-width="6" fill="none"/>
-                    <path d="M0 220 Q80 230 160 210 T280 230" stroke="#e0dcd6" stroke-width="8" fill="none"/>
-                    <path d="M0 300 Q90 290 170 310 T280 290" stroke="#e0dcd6" stroke-width="6" fill="none"/>
-                    <path d="M50 0 Q60 100 40 200 T60 400" stroke="#e0dcd6" stroke-width="6" fill="none"/>
-                    <path d="M130 0 Q140 80 120 180 T140 400" stroke="#e0dcd6" stroke-width="8" fill="none"/>
-                    <path d="M200 0 Q210 120 190 250 T210 400" stroke="#e0dcd6" stroke-width="6" fill="none"/>
-                    <path d="M240 0 Q250 100 230 200 T250 400" stroke="#e0dcd6" stroke-width="5" fill="none"/>
+                    <!-- Map base -->
+                    <rect width="100%" height="100%" fill="#f2efe9"/>
 
-                    <!-- Water/river area on right -->
-                    <path d="M220 250 Q280 260 280 400 L280 400 L220 400 Q230 320 220 250" fill="#d8e4e8" opacity="0.5"/>
+                    <!-- Major roads (thicker, lighter) -->
+                    <path d="M0 50 Q60 55 120 45 Q180 35 240 50 L280 45" stroke="#e8e4de" stroke-width="12" fill="none"/>
+                    <path d="M0 130 Q80 125 160 135 Q220 145 280 130" stroke="#e8e4de" stroke-width="10" fill="none"/>
+                    <path d="M0 200 Q70 210 140 195 Q210 180 280 200" stroke="#e8e4de" stroke-width="12" fill="none"/>
+                    <path d="M0 280 Q90 270 170 285 Q230 300 280 275" stroke="#e8e4de" stroke-width="10" fill="none"/>
+                    <path d="M0 350 Q80 360 160 345 Q220 330 280 355" stroke="#e8e4de" stroke-width="8" fill="none"/>
 
-                    <!-- HSP4 Waypoint (top) -->
-                    <circle cx="110" cy="60" r="6" class="waypoint-dot"/>
-                    <circle cx="110" cy="60" r="3" fill="#333"/>
-                    <text x="70" y="55" class="waypoint-label">HSP4</text>
+                    <!-- Vertical roads -->
+                    <path d="M40 0 Q50 100 35 200 Q20 300 50 400" stroke="#e8e4de" stroke-width="8" fill="none"/>
+                    <path d="M100 0 Q110 80 95 180 Q80 280 110 400" stroke="#e8e4de" stroke-width="10" fill="none"/>
+                    <path d="M160 0 Q170 100 155 200 Q140 300 170 400" stroke="#e8e4de" stroke-width="8" fill="none"/>
+                    <path d="M220 0 Q230 80 215 200 Q200 320 235 400" stroke="#e8e4de" stroke-width="6" fill="none"/>
 
-                    <!-- Route line (dashed) -->
-                    <path d="M110 66 L110 120 Q115 180 120 240 L130 320" class="route-line"/>
+                    <!-- Minor roads -->
+                    <path d="M0 85 Q50 80 100 90 Q150 100 200 85 L280 95" stroke="#ebe7e1" stroke-width="4" fill="none"/>
+                    <path d="M0 165 Q70 170 140 160 Q200 150 280 170" stroke="#ebe7e1" stroke-width="4" fill="none"/>
+                    <path d="M0 240 Q60 235 130 245 Q190 255 280 235" stroke="#ebe7e1" stroke-width="4" fill="none"/>
+                    <path d="M0 315 Q80 320 150 310 Q210 300 280 320" stroke="#ebe7e1" stroke-width="4" fill="none"/>
+                    <path d="M70 0 Q75 60 65 140 Q55 220 80 300 Q95 360 70 400" stroke="#ebe7e1" stroke-width="4" fill="none"/>
+                    <path d="M130 0 Q135 50 125 120 Q115 200 140 280 Q155 340 130 400" stroke="#ebe7e1" stroke-width="4" fill="none"/>
+                    <path d="M190 0 Q195 70 185 160 Q175 250 200 340 Q210 380 190 400" stroke="#ebe7e1" stroke-width="4" fill="none"/>
+                    <path d="M250 0 Q255 90 245 190 Q235 290 260 400" stroke="#ebe7e1" stroke-width="4" fill="none"/>
 
-                    <!-- Drone position with circle -->
-                    <circle cx="118" cy="220" r="28" class="drone-circle"/>
-                    <g transform="translate(118, 220)">
-                        <!-- Drone arrow pointing NE -->
-                        <polygon points="0,-12 8,8 0,4 -8,8" class="drone-icon" transform="rotate(53)"/>
+                    <!-- Water body on right side -->
+                    <path d="M200 300 Q240 310 260 350 Q280 380 280 400 L280 400 L200 400 Q210 360 200 300" fill="url(#waterGrad)"/>
+
+                    <!-- HSP4 Waypoint (top) - radio button style -->
+                    <circle cx="100" cy="55" r="5" fill="#fff" stroke="#444" stroke-width="1.5"/>
+                    <circle cx="100" cy="55" r="2" fill="#444"/>
+                    <g transform="translate(55, 47)">
+                        <circle cx="0" cy="0" r="2" fill="#444"/>
+                        <text x="6" y="4" class="waypoint-label" font-family="Inter, sans-serif" font-size="11">HSP4</text>
                     </g>
 
-                    <!-- WH2 Waypoint (bottom) -->
-                    <circle cx="130" cy="340" r="4" stroke="#333" stroke-width="1.5" fill="#fff"/>
-                    <circle cx="130" cy="340" r="1.5" fill="#333"/>
-                    <text x="150" y="345" class="waypoint-label">WH2</text>
+                    <!-- Route line (dashed) -->
+                    <path d="M100 60 Q105 100 108 150 Q112 200 115 250 Q118 290 125 330" stroke="#444" stroke-width="1.5" stroke-dasharray="5,5" fill="none"/>
+
+                    <!-- Drone position with circle -->
+                    <circle cx="112" cy="210" r="26" fill="none" stroke="#444" stroke-width="1.5"/>
+                    <g transform="translate(112, 210)">
+                        <!-- Drone arrow pointing NE -->
+                        <polygon points="0,-10 7,7 0,3 -7,7" fill="#444" transform="rotate(53)"/>
+                    </g>
+
+                    <!-- WH2 Waypoint (bottom) - radio button style -->
+                    <circle cx="125" cy="330" r="4" fill="#fff" stroke="#444" stroke-width="1.5"/>
+                    <circle cx="125" cy="330" r="1.5" fill="#444"/>
+                    <g transform="translate(135, 333)">
+                        <circle cx="0" cy="0" r="2" fill="#444"/>
+                        <text x="6" y="4" class="waypoint-label" font-family="Inter, sans-serif" font-size="11">WH2</text>
+                    </g>
                 </svg>
             </div>
             <div class="weather-info">
@@ -830,18 +859,27 @@
                             <div class="direction-value">90</div>
                             <div class="direction-main">NE</div>
                         </div>
-                        <div class="compass">
-                            <div class="compass-ring">
-                                <span class="compass-direction north">N</span>
-                                <span class="compass-direction south">S</span>
-                                <span class="compass-direction east">E</span>
-                                <span class="compass-direction west">W</span>
-                                <div class="compass-needle"></div>
-                                <div class="compass-center"></div>
+                        <div class="compass-wrapper">
+                            <div style="display: flex; justify-content: center; width: 100%; margin-bottom: 4px;">
+                                <span class="compass-degree">0</span>
                             </div>
-                            <span class="degree-marker top">0</span>
-                            <span class="degree-marker right">180</span>
-                            <span class="degree-marker bottom">270</span>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <span class="compass-degree">0</span>
+                                <div class="compass">
+                                    <div class="compass-ring">
+                                        <span class="compass-direction north">N</span>
+                                        <span class="compass-direction south">S</span>
+                                        <span class="compass-direction east">E</span>
+                                        <span class="compass-direction west">W</span>
+                                        <div class="compass-needle"></div>
+                                        <div class="compass-center"></div>
+                                    </div>
+                                </div>
+                                <span class="compass-degree">180</span>
+                            </div>
+                            <div style="display: flex; justify-content: center; width: 100%; margin-top: 4px;">
+                                <span class="compass-degree">270</span>
+                            </div>
                         </div>
                         <div style="display: flex; flex-direction: column; justify-content: flex-end; align-items: flex-end;">
                             <span class="direction-degrees">53°</span>
@@ -860,14 +898,22 @@
     </div>
 
     <script>
-        // Generate a simple city skyline on canvas
+        // Generate an aerial city view on canvas
         const canvas = document.getElementById('cityCanvas');
         const ctx = canvas.getContext('2d');
         const container = document.getElementById('videoContainer');
 
+        // Seeded random for consistent view
+        let seed = 12345;
+        function seededRandom() {
+            seed = (seed * 9301 + 49297) % 233280;
+            return seed / 233280;
+        }
+
         function resizeCanvas() {
             canvas.width = container.offsetWidth;
             canvas.height = container.offsetHeight;
+            seed = 12345; // Reset seed for consistency
             drawCity();
         }
 
@@ -875,69 +921,104 @@
             const w = canvas.width;
             const h = canvas.height;
 
-            // Sky gradient
+            // Sky gradient - hazy atmospheric look
             const skyGradient = ctx.createLinearGradient(0, 0, 0, h);
-            skyGradient.addColorStop(0, '#8B9CAB');
-            skyGradient.addColorStop(0.3, '#9AABB8');
-            skyGradient.addColorStop(0.6, '#A8B8C5');
-            skyGradient.addColorStop(1, '#B5C3CF');
+            skyGradient.addColorStop(0, '#7A8A9A');
+            skyGradient.addColorStop(0.2, '#8A99A8');
+            skyGradient.addColorStop(0.4, '#95A4B2');
+            skyGradient.addColorStop(0.7, '#A0AFBC');
+            skyGradient.addColorStop(1, '#A8B6C2');
             ctx.fillStyle = skyGradient;
             ctx.fillRect(0, 0, w, h);
 
-            // Haze layer
-            const hazeGradient = ctx.createLinearGradient(0, h * 0.3, 0, h);
-            hazeGradient.addColorStop(0, 'rgba(180, 190, 200, 0)');
-            hazeGradient.addColorStop(1, 'rgba(180, 190, 200, 0.4)');
-            ctx.fillStyle = hazeGradient;
-            ctx.fillRect(0, 0, w, h);
-
-            // Draw distant buildings (background layer)
-            ctx.fillStyle = 'rgba(120, 135, 150, 0.6)';
-            for (let i = 0; i < 60; i++) {
-                const x = (i / 60) * w + Math.random() * 20 - 10;
-                const buildingWidth = 8 + Math.random() * 15;
-                const buildingHeight = 30 + Math.random() * 80;
-                const y = h * 0.45 - buildingHeight * 0.3;
-                ctx.fillRect(x, y, buildingWidth, buildingHeight);
+            // Very distant city layer (horizon)
+            ctx.fillStyle = 'rgba(130, 145, 160, 0.5)';
+            for (let i = 0; i < 120; i++) {
+                const x = (i / 120) * w * 1.2 - w * 0.1;
+                const buildingWidth = 4 + seededRandom() * 10;
+                const buildingHeight = 15 + seededRandom() * 50;
+                const y = h * 0.32;
+                ctx.fillRect(x, y - buildingHeight * 0.3, buildingWidth, buildingHeight);
             }
 
-            // Draw mid-ground buildings
+            // Distant buildings layer
+            ctx.fillStyle = 'rgba(115, 130, 145, 0.6)';
+            for (let i = 0; i < 80; i++) {
+                const x = (i / 80) * w * 1.2 - w * 0.1;
+                const buildingWidth = 6 + seededRandom() * 14;
+                const buildingHeight = 25 + seededRandom() * 70;
+                const y = h * 0.38;
+                ctx.fillRect(x, y - buildingHeight * 0.2, buildingWidth, buildingHeight);
+            }
+
+            // Mid-distance buildings
             ctx.fillStyle = 'rgba(100, 115, 130, 0.7)';
-            for (let i = 0; i < 40; i++) {
-                const x = (i / 40) * w + Math.random() * 30 - 15;
-                const buildingWidth = 12 + Math.random() * 25;
-                const buildingHeight = 50 + Math.random() * 120;
-                const y = h * 0.5 - buildingHeight * 0.2;
-                ctx.fillRect(x, y, buildingWidth, buildingHeight);
+            for (let i = 0; i < 60; i++) {
+                const x = (i / 60) * w * 1.3 - w * 0.15;
+                const buildingWidth = 10 + seededRandom() * 20;
+                const buildingHeight = 40 + seededRandom() * 100;
+                const y = h * 0.45;
+                ctx.fillRect(x, y - buildingHeight * 0.1, buildingWidth, buildingHeight);
             }
 
-            // Draw foreground buildings (more detail)
-            ctx.fillStyle = 'rgba(80, 95, 110, 0.8)';
-            for (let i = 0; i < 30; i++) {
-                const x = (i / 30) * w + Math.random() * 40 - 20;
-                const buildingWidth = 20 + Math.random() * 40;
-                const buildingHeight = 80 + Math.random() * 160;
+            // Closer buildings with more detail
+            ctx.fillStyle = 'rgba(85, 100, 115, 0.75)';
+            for (let i = 0; i < 50; i++) {
+                const x = (i / 50) * w * 1.4 - w * 0.2;
+                const buildingWidth = 15 + seededRandom() * 30;
+                const buildingHeight = 60 + seededRandom() * 140;
+                const y = h * 0.52;
+                ctx.fillRect(x, y, buildingWidth, buildingHeight);
+
+                // Windows on larger buildings
+                if (buildingWidth > 20 && buildingHeight > 80) {
+                    ctx.fillStyle = 'rgba(140, 155, 170, 0.25)';
+                    for (let wy = y + 8; wy < y + buildingHeight - 8; wy += 10) {
+                        for (let wx = x + 3; wx < x + buildingWidth - 3; wx += 6) {
+                            if (seededRandom() > 0.35) {
+                                ctx.fillRect(wx, wy, 3, 5);
+                            }
+                        }
+                    }
+                    ctx.fillStyle = 'rgba(85, 100, 115, 0.75)';
+                }
+            }
+
+            // Foreground buildings - largest and most detailed
+            ctx.fillStyle = 'rgba(70, 85, 100, 0.8)';
+            for (let i = 0; i < 35; i++) {
+                const x = (i / 35) * w * 1.5 - w * 0.25;
+                const buildingWidth = 25 + seededRandom() * 50;
+                const buildingHeight = 100 + seededRandom() * 200;
                 const y = h * 0.6;
                 ctx.fillRect(x, y, buildingWidth, buildingHeight);
 
-                // Add some window details
-                ctx.fillStyle = 'rgba(150, 165, 180, 0.3)';
+                // Add detailed windows
+                ctx.fillStyle = 'rgba(130, 145, 160, 0.3)';
                 for (let wy = y + 10; wy < y + buildingHeight - 10; wy += 12) {
                     for (let wx = x + 4; wx < x + buildingWidth - 4; wx += 8) {
-                        if (Math.random() > 0.3) {
+                        if (seededRandom() > 0.3) {
                             ctx.fillRect(wx, wy, 4, 6);
                         }
                     }
                 }
-                ctx.fillStyle = 'rgba(80, 95, 110, 0.8)';
+                ctx.fillStyle = 'rgba(70, 85, 100, 0.8)';
             }
 
-            // Add atmospheric perspective
-            const fogGradient = ctx.createLinearGradient(0, 0, 0, h);
-            fogGradient.addColorStop(0, 'rgba(180, 195, 210, 0.2)');
-            fogGradient.addColorStop(0.5, 'rgba(180, 195, 210, 0.1)');
-            fogGradient.addColorStop(1, 'rgba(180, 195, 210, 0.3)');
-            ctx.fillStyle = fogGradient;
+            // Atmospheric haze overlay
+            const hazeGradient = ctx.createLinearGradient(0, 0, 0, h);
+            hazeGradient.addColorStop(0, 'rgba(170, 185, 200, 0.25)');
+            hazeGradient.addColorStop(0.3, 'rgba(170, 185, 200, 0.15)');
+            hazeGradient.addColorStop(0.6, 'rgba(170, 185, 200, 0.1)');
+            hazeGradient.addColorStop(1, 'rgba(170, 185, 200, 0.2)');
+            ctx.fillStyle = hazeGradient;
+            ctx.fillRect(0, 0, w, h);
+
+            // Subtle vignette effect
+            const vignetteGradient = ctx.createRadialGradient(w/2, h/2, 0, w/2, h/2, Math.max(w, h) * 0.7);
+            vignetteGradient.addColorStop(0, 'rgba(0, 0, 0, 0)');
+            vignetteGradient.addColorStop(1, 'rgba(0, 0, 0, 0.15)');
+            ctx.fillStyle = vignetteGradient;
             ctx.fillRect(0, 0, w, h);
         }
 
