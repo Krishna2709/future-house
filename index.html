@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drone Control Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: #E5E1DB;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .dashboard {
+            display: flex;
+            background: #E5E1DB;
+            border-radius: 4px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            max-width: 1200px;
+            width: 100%;
+        }
+
+        /* Left Sidebar - Map Panel */
+        .map-panel {
+            width: 280px;
+            background: #fff;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .map-container {
+            flex: 1;
+            position: relative;
+            background: #f5f3f0;
+            min-height: 400px;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 24px;
+            height: 24px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            z-index: 10;
+            font-size: 18px;
+            color: #666;
+        }
+
+        .close-btn:hover {
+            color: #333;
+        }
+
+        /* Map SVG Styling */
+        .map-svg {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .waypoint {
+            fill: none;
+            stroke: #333;
+            stroke-width: 1.5;
+        }
+
+        .waypoint-dot {
+            fill: #fff;
+            stroke: #333;
+            stroke-width: 1.5;
+        }
+
+        .waypoint-label {
+            font-size: 10px;
+            font-weight: 500;
+            fill: #333;
+        }
+
+        .route-line {
+            stroke: #333;
+            stroke-width: 1.5;
+            stroke-dasharray: 4, 4;
+            fill: none;
+        }
+
+        .drone-icon {
+            fill: #333;
+        }
+
+        .drone-circle {
+            fill: none;
+            stroke: #333;
+            stroke-width: 1.5;
+        }
+
+        /* Weather Info */
+        .weather-info {
+            padding: 20px;
+            border-top: 1px solid #eee;
+            background: #fff;
+        }
+
+        .weather-item {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 12px;
+        }
+
+        .weather-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .weather-label {
+            font-size: 9px;
+            color: #999;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            margin-bottom: 2px;
+        }
+
+        .weather-value {
+            font-size: 14px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        /* Main Content Area */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #E5E1DB;
+            padding: 0;
+        }
+
+        /* Video Panel */
+        .video-panel {
+            position: relative;
+            height: 340px;
+            background: linear-gradient(180deg, #6B7B8C 0%, #8B9AA8 50%, #A8B5C2 100%);
+            overflow: hidden;
+        }
+
+        .video-feed {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .video-placeholder {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(180deg,
+                #7A8B9C 0%,
+                #8B9AA8 30%,
+                #9BA8B5 60%,
+                #A8B5C2 100%
+            );
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        /* City skyline effect */
+        .city-skyline {
+            position: absolute;
+            bottom: 30%;
+            left: 0;
+            right: 0;
+            height: 40%;
+            background:
+                linear-gradient(180deg, transparent 0%, rgba(139, 154, 168, 0.3) 100%);
+        }
+
+        /* Video Overlays */
+        .video-overlay-top {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 16px;
+            background: linear-gradient(180deg, rgba(0,0,0,0.3) 0%, transparent 100%);
+        }
+
+        .overlay-item {
+            color: #fff;
+            text-align: center;
+        }
+
+        .overlay-item.center {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .overlay-label {
+            font-size: 8px;
+            letter-spacing: 0.5px;
+            opacity: 0.8;
+            text-transform: uppercase;
+        }
+
+        .overlay-value {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .video-overlay-bottom {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            padding: 16px;
+            background: linear-gradient(0deg, rgba(0,0,0,0.4) 0%, transparent 100%);
+        }
+
+        /* Signal and Battery Indicators */
+        .indicator {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .indicator.right {
+            align-items: flex-end;
+        }
+
+        .indicator-label {
+            font-size: 8px;
+            color: #fff;
+            opacity: 0.8;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .indicator-bars {
+            display: flex;
+            gap: 2px;
+            height: 12px;
+        }
+
+        .indicator-bar {
+            width: 8px;
+            height: 100%;
+            background: #fff;
+            transform: skewX(-15deg);
+            opacity: 0.9;
+        }
+
+        .indicator-bar.inactive {
+            opacity: 0.3;
+        }
+
+        /* Speed Display */
+        .speed-display {
+            position: absolute;
+            bottom: 16px;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            color: #fff;
+        }
+
+        .speed-value {
+            font-size: 48px;
+            font-weight: 300;
+            line-height: 1;
+        }
+
+        .speed-unit {
+            font-size: 11px;
+            opacity: 0.8;
+            letter-spacing: 1px;
+        }
+
+        /* Flight Info Section */
+        .flight-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 0;
+            background: #fff;
+        }
+
+        .info-card {
+            padding: 20px;
+            border-right: 1px solid #f0f0f0;
+        }
+
+        .info-card:last-child {
+            border-right: none;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .drone-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .dropdown-arrow {
+            font-size: 8px;
+            color: #666;
+        }
+
+        .status-badge {
+            background: #F26B4E;
+            color: #fff;
+            font-size: 9px;
+            font-weight: 600;
+            padding: 3px 8px;
+            border-radius: 3px;
+            letter-spacing: 0.5px;
+        }
+
+        .section-title {
+            font-size: 10px;
+            color: #999;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+
+        /* Route Display */
+        .route-display {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .route-point {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .route-line-container {
+            flex: 1;
+            height: 3px;
+            background: #e0e0e0;
+            border-radius: 2px;
+            position: relative;
+        }
+
+        .route-progress {
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            background: #333;
+            border-radius: 2px;
+            width: 72%;
+        }
+
+        .route-progress::after {
+            content: '';
+            position: absolute;
+            right: -4px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 8px;
+            height: 8px;
+            background: #333;
+            border-radius: 50%;
+        }
+
+        /* Info Grid */
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .info-label {
+            font-size: 9px;
+            color: #999;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            margin-bottom: 2px;
+        }
+
+        .info-value {
+            font-size: 14px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        /* Compass */
+        .compass-container {
+            display: flex;
+            align-items: flex-start;
+            gap: 20px;
+        }
+
+        .compass-info {
+            flex: 1;
+        }
+
+        .compass {
+            width: 100px;
+            height: 100px;
+            position: relative;
+        }
+
+        .compass-ring {
+            width: 100%;
+            height: 100%;
+            border: 2px solid #e0e0e0;
+            border-radius: 50%;
+            position: relative;
+        }
+
+        .compass-direction {
+            position: absolute;
+            font-size: 9px;
+            color: #999;
+            font-weight: 500;
+        }
+
+        .compass-direction.north {
+            top: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .compass-direction.south {
+            bottom: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .compass-direction.east {
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .compass-direction.west {
+            left: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .compass-needle {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(53deg);
+            width: 0;
+            height: 0;
+        }
+
+        .compass-needle::before {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 0;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-bottom: 35px solid #333;
+            transform: translateX(-8px) translateY(-35px);
+        }
+
+        .compass-needle::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 0;
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+            border-top: 20px solid #ccc;
+            transform: translateX(-6px);
+        }
+
+        .compass-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 8px;
+            height: 8px;
+            background: #333;
+            border-radius: 50%;
+        }
+
+        .compass-ticks {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+
+        .compass-tick {
+            position: absolute;
+            width: 1px;
+            height: 6px;
+            background: #ccc;
+        }
+
+        .direction-value {
+            font-size: 11px;
+            color: #999;
+            margin-top: 8px;
+        }
+
+        .direction-main {
+            font-size: 32px;
+            font-weight: 300;
+            color: #333;
+            margin-top: 4px;
+        }
+
+        .direction-degrees {
+            font-size: 24px;
+            font-weight: 300;
+            color: #333;
+            text-align: right;
+        }
+
+        /* Control Buttons */
+        .control-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 0;
+            background: #fff;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .control-btn {
+            padding: 16px;
+            border: none;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+
+        .control-btn.autopilot {
+            background: #D4CFC7;
+            color: #333;
+        }
+
+        .control-btn.manual {
+            background: #fff;
+            color: #333;
+            border-left: 1px solid #f0f0f0;
+            border-right: 1px solid #f0f0f0;
+        }
+
+        .control-btn.pause {
+            background: #F26B4E;
+            color: #fff;
+        }
+
+        .control-btn:hover {
+            opacity: 0.9;
+        }
+
+        /* Degree markers on compass edges */
+        .degree-marker {
+            position: absolute;
+            font-size: 9px;
+            color: #999;
+        }
+
+        .degree-marker.top {
+            top: -18px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .degree-marker.right {
+            right: -20px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .degree-marker.bottom {
+            bottom: -18px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .degree-marker.left {
+            left: -20px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Left Sidebar - Map Panel -->
+        <div class="map-panel">
+            <div class="map-container">
+                <button class="close-btn">×</button>
+                <svg class="map-svg" viewBox="0 0 280 400" preserveAspectRatio="xMidYMid slice">
+                    <!-- Map background pattern - streets -->
+                    <defs>
+                        <pattern id="streets" patternUnits="userSpaceOnUse" width="40" height="40">
+                            <path d="M0 20 L40 20 M20 0 L20 40" stroke="#ddd" stroke-width="0.5" fill="none"/>
+                        </pattern>
+                    </defs>
+                    <rect width="100%" height="100%" fill="#f0ece6"/>
+
+                    <!-- Simulated map roads -->
+                    <path d="M0 80 Q70 90 140 70 T280 90" stroke="#e0dcd6" stroke-width="8" fill="none"/>
+                    <path d="M0 150 Q100 140 180 160 T280 140" stroke="#e0dcd6" stroke-width="6" fill="none"/>
+                    <path d="M0 220 Q80 230 160 210 T280 230" stroke="#e0dcd6" stroke-width="8" fill="none"/>
+                    <path d="M0 300 Q90 290 170 310 T280 290" stroke="#e0dcd6" stroke-width="6" fill="none"/>
+                    <path d="M50 0 Q60 100 40 200 T60 400" stroke="#e0dcd6" stroke-width="6" fill="none"/>
+                    <path d="M130 0 Q140 80 120 180 T140 400" stroke="#e0dcd6" stroke-width="8" fill="none"/>
+                    <path d="M200 0 Q210 120 190 250 T210 400" stroke="#e0dcd6" stroke-width="6" fill="none"/>
+                    <path d="M240 0 Q250 100 230 200 T250 400" stroke="#e0dcd6" stroke-width="5" fill="none"/>
+
+                    <!-- Water/river area on right -->
+                    <path d="M220 250 Q280 260 280 400 L280 400 L220 400 Q230 320 220 250" fill="#d8e4e8" opacity="0.5"/>
+
+                    <!-- HSP4 Waypoint (top) -->
+                    <circle cx="110" cy="60" r="6" class="waypoint-dot"/>
+                    <circle cx="110" cy="60" r="3" fill="#333"/>
+                    <text x="70" y="55" class="waypoint-label">HSP4</text>
+
+                    <!-- Route line (dashed) -->
+                    <path d="M110 66 L110 120 Q115 180 120 240 L130 320" class="route-line"/>
+
+                    <!-- Drone position with circle -->
+                    <circle cx="118" cy="220" r="28" class="drone-circle"/>
+                    <g transform="translate(118, 220)">
+                        <!-- Drone arrow pointing NE -->
+                        <polygon points="0,-12 8,8 0,4 -8,8" class="drone-icon" transform="rotate(53)"/>
+                    </g>
+
+                    <!-- WH2 Waypoint (bottom) -->
+                    <circle cx="130" cy="340" r="4" stroke="#333" stroke-width="1.5" fill="#fff"/>
+                    <circle cx="130" cy="340" r="1.5" fill="#333"/>
+                    <text x="150" y="345" class="waypoint-label">WH2</text>
+                </svg>
+            </div>
+            <div class="weather-info">
+                <div class="weather-item">
+                    <span class="weather-label">Precipitation</span>
+                    <span class="weather-value">CLR</span>
+                </div>
+                <div class="weather-item">
+                    <span class="weather-label">Wind</span>
+                    <span class="weather-value">15 KM/H</span>
+                </div>
+                <div class="weather-item">
+                    <span class="weather-label">Visibility</span>
+                    <span class="weather-value">1.2 KM</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Video Panel -->
+            <div class="video-panel">
+                <!-- Using a placeholder gradient that simulates aerial city view -->
+                <div class="video-placeholder" id="videoContainer">
+                    <canvas id="cityCanvas"></canvas>
+                </div>
+
+                <!-- Top Overlay -->
+                <div class="video-overlay-top">
+                    <div class="overlay-item">
+                        <div class="overlay-label">Temperature</div>
+                        <div class="overlay-value">22°C</div>
+                    </div>
+                    <div class="overlay-item center">
+                        <div class="overlay-label">Flight Altitude</div>
+                        <div class="overlay-value">300<span style="font-size: 10px;">M</span></div>
+                    </div>
+                    <div class="overlay-item">
+                        <div class="overlay-label">Humidity</div>
+                        <div class="overlay-value">37%</div>
+                    </div>
+                </div>
+
+                <!-- Bottom Overlay -->
+                <div class="video-overlay-bottom">
+                    <div class="indicator">
+                        <div class="indicator-label">Signal</div>
+                        <div class="indicator-bars">
+                            <div class="indicator-bar"></div>
+                            <div class="indicator-bar"></div>
+                            <div class="indicator-bar"></div>
+                            <div class="indicator-bar"></div>
+                            <div class="indicator-bar"></div>
+                            <div class="indicator-bar"></div>
+                            <div class="indicator-bar"></div>
+                            <div class="indicator-bar"></div>
+                            <div class="indicator-bar"></div>
+                            <div class="indicator-bar"></div>
+                            <div class="indicator-bar inactive"></div>
+                            <div class="indicator-bar inactive"></div>
+                        </div>
+                    </div>
+
+                    <div class="speed-display">
+                        <div class="speed-value">42</div>
+                        <div class="speed-unit">KM/H</div>
+                    </div>
+
+                    <div class="indicator right">
+                        <div class="indicator-label">Battery</div>
+                        <div class="indicator-bars">
+                            <div class="indicator-bar"></div>
+                            <div class="indicator-bar"></div>
+                            <div class="indicator-bar"></div>
+                            <div class="indicator-bar"></div>
+                            <div class="indicator-bar"></div>
+                            <div class="indicator-bar"></div>
+                            <div class="indicator-bar"></div>
+                            <div class="indicator-bar"></div>
+                            <div class="indicator-bar inactive"></div>
+                            <div class="indicator-bar inactive"></div>
+                            <div class="indicator-bar inactive"></div>
+                            <div class="indicator-bar inactive"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Flight Info Section -->
+            <div class="flight-info">
+                <!-- Route Card -->
+                <div class="info-card">
+                    <div class="card-header">
+                        <span class="drone-name">FALCON MD-13 <span class="dropdown-arrow">▼</span></span>
+                        <span class="status-badge">IN FLIGHT</span>
+                    </div>
+                    <div class="section-title">Route</div>
+                    <div class="route-display">
+                        <span class="route-point">WH2</span>
+                        <div class="route-line-container">
+                            <div class="route-progress"></div>
+                        </div>
+                        <span class="route-point">HSP4</span>
+                    </div>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <span class="info-label">Progress</span>
+                            <span class="info-value">72%</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">ETA</span>
+                            <span class="info-value">4 min</span>
+                        </div>
+                    </div>
+                    <div style="margin-top: 12px;">
+                        <div class="info-item">
+                            <span class="info-label">Mission Type</span>
+                            <span class="info-value">Medical Delivery</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payload Card -->
+                <div class="info-card">
+                    <div class="section-title">Payload Info</div>
+                    <div class="info-grid" style="margin-top: 24px;">
+                        <div class="info-item">
+                            <span class="info-label">Cargo</span>
+                            <span class="info-value">Lab Samples</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Weight</span>
+                            <span class="info-value">1.1 <span style="font-size: 11px;">KG</span></span>
+                        </div>
+                    </div>
+                    <div class="info-grid" style="margin-top: 12px;">
+                        <div class="info-item">
+                            <span class="info-label">Container Status</span>
+                            <span class="info-value">Locked</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Temp</span>
+                            <span class="info-value">5°</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Direction Card -->
+                <div class="info-card">
+                    <div class="compass-container">
+                        <div class="compass-info">
+                            <div class="section-title">Direction</div>
+                            <div class="direction-value">90</div>
+                            <div class="direction-main">NE</div>
+                        </div>
+                        <div class="compass">
+                            <div class="compass-ring">
+                                <span class="compass-direction north">N</span>
+                                <span class="compass-direction south">S</span>
+                                <span class="compass-direction east">E</span>
+                                <span class="compass-direction west">W</span>
+                                <div class="compass-needle"></div>
+                                <div class="compass-center"></div>
+                            </div>
+                            <span class="degree-marker top">0</span>
+                            <span class="degree-marker right">180</span>
+                            <span class="degree-marker bottom">270</span>
+                        </div>
+                        <div style="display: flex; flex-direction: column; justify-content: flex-end; align-items: flex-end;">
+                            <span class="direction-degrees">53°</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Control Buttons -->
+            <div class="control-buttons">
+                <button class="control-btn autopilot">Autopilot</button>
+                <button class="control-btn manual">Manual</button>
+                <button class="control-btn pause">Pause task</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Generate a simple city skyline on canvas
+        const canvas = document.getElementById('cityCanvas');
+        const ctx = canvas.getContext('2d');
+        const container = document.getElementById('videoContainer');
+
+        function resizeCanvas() {
+            canvas.width = container.offsetWidth;
+            canvas.height = container.offsetHeight;
+            drawCity();
+        }
+
+        function drawCity() {
+            const w = canvas.width;
+            const h = canvas.height;
+
+            // Sky gradient
+            const skyGradient = ctx.createLinearGradient(0, 0, 0, h);
+            skyGradient.addColorStop(0, '#8B9CAB');
+            skyGradient.addColorStop(0.3, '#9AABB8');
+            skyGradient.addColorStop(0.6, '#A8B8C5');
+            skyGradient.addColorStop(1, '#B5C3CF');
+            ctx.fillStyle = skyGradient;
+            ctx.fillRect(0, 0, w, h);
+
+            // Haze layer
+            const hazeGradient = ctx.createLinearGradient(0, h * 0.3, 0, h);
+            hazeGradient.addColorStop(0, 'rgba(180, 190, 200, 0)');
+            hazeGradient.addColorStop(1, 'rgba(180, 190, 200, 0.4)');
+            ctx.fillStyle = hazeGradient;
+            ctx.fillRect(0, 0, w, h);
+
+            // Draw distant buildings (background layer)
+            ctx.fillStyle = 'rgba(120, 135, 150, 0.6)';
+            for (let i = 0; i < 60; i++) {
+                const x = (i / 60) * w + Math.random() * 20 - 10;
+                const buildingWidth = 8 + Math.random() * 15;
+                const buildingHeight = 30 + Math.random() * 80;
+                const y = h * 0.45 - buildingHeight * 0.3;
+                ctx.fillRect(x, y, buildingWidth, buildingHeight);
+            }
+
+            // Draw mid-ground buildings
+            ctx.fillStyle = 'rgba(100, 115, 130, 0.7)';
+            for (let i = 0; i < 40; i++) {
+                const x = (i / 40) * w + Math.random() * 30 - 15;
+                const buildingWidth = 12 + Math.random() * 25;
+                const buildingHeight = 50 + Math.random() * 120;
+                const y = h * 0.5 - buildingHeight * 0.2;
+                ctx.fillRect(x, y, buildingWidth, buildingHeight);
+            }
+
+            // Draw foreground buildings (more detail)
+            ctx.fillStyle = 'rgba(80, 95, 110, 0.8)';
+            for (let i = 0; i < 30; i++) {
+                const x = (i / 30) * w + Math.random() * 40 - 20;
+                const buildingWidth = 20 + Math.random() * 40;
+                const buildingHeight = 80 + Math.random() * 160;
+                const y = h * 0.6;
+                ctx.fillRect(x, y, buildingWidth, buildingHeight);
+
+                // Add some window details
+                ctx.fillStyle = 'rgba(150, 165, 180, 0.3)';
+                for (let wy = y + 10; wy < y + buildingHeight - 10; wy += 12) {
+                    for (let wx = x + 4; wx < x + buildingWidth - 4; wx += 8) {
+                        if (Math.random() > 0.3) {
+                            ctx.fillRect(wx, wy, 4, 6);
+                        }
+                    }
+                }
+                ctx.fillStyle = 'rgba(80, 95, 110, 0.8)';
+            }
+
+            // Add atmospheric perspective
+            const fogGradient = ctx.createLinearGradient(0, 0, 0, h);
+            fogGradient.addColorStop(0, 'rgba(180, 195, 210, 0.2)');
+            fogGradient.addColorStop(0.5, 'rgba(180, 195, 210, 0.1)');
+            fogGradient.addColorStop(1, 'rgba(180, 195, 210, 0.3)');
+            ctx.fillStyle = fogGradient;
+            ctx.fillRect(0, 0, w, h);
+        }
+
+        // Initialize
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        // Button interactions
+        document.querySelectorAll('.control-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.control-btn').forEach(b => {
+                    b.classList.remove('active');
+                    if (b.classList.contains('autopilot')) {
+                        b.style.background = '#fff';
+                    }
+                });
+
+                if (this.classList.contains('autopilot')) {
+                    this.style.background = '#D4CFC7';
+                } else if (this.classList.contains('manual')) {
+                    document.querySelector('.autopilot').style.background = '#fff';
+                    this.style.background = '#D4CFC7';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
